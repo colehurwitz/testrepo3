@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from pathlib import Path
 
 DEFAULT_PATH = Path.home() / ".todo.json"
@@ -14,9 +15,18 @@ def save_todos(todos: list[dict], path: Path = DEFAULT_PATH) -> None:
     path.write_text(json.dumps(todos))
 
 
-def add_todo(title: str, path: Path = DEFAULT_PATH) -> dict:
+def parse_due_date(date_str: str) -> str:
+    try:
+        return date.fromisoformat(date_str).isoformat()
+    except ValueError:
+        raise ValueError(f"Invalid date: '{date_str}'. Use YYYY-MM-DD format.")
+
+
+def add_todo(title: str, due: str | None = None, path: Path = DEFAULT_PATH) -> dict:
+    if due is not None:
+        due = parse_due_date(due)
     todos = load_todos(path)
-    todo = {"id": len(todos) + 1, "title": title, "done": False}
+    todo = {"id": len(todos) + 1, "title": title, "done": False, "due": due}
     todos.append(todo)
     save_todos(todos, path)
     return todo

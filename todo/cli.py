@@ -7,9 +7,11 @@ def print_todos(todos: list[dict]) -> None:
     if not todos:
         print("No todos yet. Add one with: todo add <title>")
         return
+    todos = sorted(todos, key=lambda t: (t.get("due") is None, t.get("due") or "", t["id"]))
     for t in todos:
         status = "x" if t["done"] else " "
-        print(f"  [{status}] {t['id']}: {t['title']}")
+        due = f" (due: {t['due']})" if t.get("due") else ""
+        print(f"  [{status}] {t['id']}: {t['title']}{due}")
 
 
 def main() -> None:
@@ -27,11 +29,28 @@ def main() -> None:
 
     elif cmd == "add":
         if len(args) < 2:
-            print("Usage: todo add <title>")
+            print("Usage: todo add <title> [--due YYYY-MM-DD]")
             return
-        title = " ".join(args[1:])
-        todo = add_todo(title)
-        print(f"Added: [{todo['id']}] {todo['title']}")
+        remaining = list(args[1:])
+        due = None
+        if "--due" in remaining:
+            idx = remaining.index("--due")
+            if idx + 1 >= len(remaining):
+                print("Error: --due requires a date (YYYY-MM-DD)")
+                return
+            due = remaining[idx + 1]
+            del remaining[idx:idx + 2]
+        if not remaining:
+            print("Usage: todo add <title> [--due YYYY-MM-DD]")
+            return
+        title = " ".join(remaining)
+        try:
+            todo = add_todo(title, due=due)
+        except ValueError as e:
+            print(str(e))
+            return
+        due_str = f" (due: {todo['due']})" if todo.get("due") else ""
+        print(f"Added: [{todo['id']}] {todo['title']}{due_str}")
 
     elif cmd == "done":
         if len(args) < 2:
