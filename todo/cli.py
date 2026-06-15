@@ -1,6 +1,9 @@
+import argparse
 import sys
 from todo.store import add_todo, load_todos, complete_todo, delete_todo
-from pathlib import Path
+
+
+PRIORITY_LABELS = {"high": "H", "medium": "M", "low": "L"}
 
 
 def print_todos(todos: list[dict]) -> None:
@@ -9,53 +12,71 @@ def print_todos(todos: list[dict]) -> None:
         return
     for t in todos:
         status = "x" if t["done"] else " "
-        print(f"  [{status}] {t['id']}: {t['title']}")
+        label = PRIORITY_LABELS[t["priority"]]
+        print(f"  [{status}] {t['id']}: [{label}] {t['title']}")
 
 
-def main() -> None:
-    args = sys.argv[1:]
-    if not args:
-        print("Usage: todo <command> [args]")
-        print("Commands: list, add, done, delete")
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="todo", description="A simple CLI todo app")
+    sub = parser.add_subparsers(dest="command")
+
+    add_p = sub.add_parser("add", help="Add a new todo")
+    add_p.add_argument("title", nargs="+", help="Todo title")
+    add_p.add_argument(
+        "-p", "--priority",
+        choices=["high", "medium", "low"],
+        default="medium",
+        help="Priority level (default: medium)",
+    )
+
+    list_p = sub.add_parser("list", help="List todos")
+    list_p.add_argument(
+        "-p", "--priority",
+        choices=["high", "medium", "low"],
+        default=None,
+        help="Filter by priority",
+    )
+
+    done_p = sub.add_parser("done", help="Mark a todo as done")
+    done_p.add_argument("id", type=int, help="Todo ID")
+
+    del_p = sub.add_parser("delete", help="Delete a todo")
+    del_p.add_argument("id", type=int, help="Todo ID")
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = build_parser()
+    args = parser.parse_args(argv if argv is not None else sys.argv[1:])
+
+    if not args.command:
+        parser.print_help()
         return
 
-    cmd = args[0]
-
-    if cmd == "list":
+    if args.command == "list":
         todos = load_todos()
+        if args.priority:
+            todos = [t for t in todos if t["priority"] == args.priority]
         print_todos(todos)
 
-    elif cmd == "add":
-        if len(args) < 2:
-            print("Usage: todo add <title>")
-            return
-        title = " ".join(args[1:])
-        todo = add_todo(title)
+    elif args.command == "add":
+        title = " ".join(args.title)
+        todo = add_todo(title, priority=args.priority)
         print(f"Added: [{todo['id']}] {todo['title']}")
 
-    elif cmd == "done":
-        if len(args) < 2:
-            print("Usage: todo done <id>")
-            return
-        todo_id = int(args[1])
-        result = complete_todo(todo_id)
+    elif args.command == "done":
+        result = complete_todo(args.id)
         if result:
             print(f"Completed: {result['title']}")
         else:
-            print(f"Todo {todo_id} not found")
+            print(f"Todo {args.id} not found")
 
-    elif cmd == "delete":
-        if len(args) < 2:
-            print("Usage: todo delete <id>")
-            return
-        todo_id = int(args[1])
-        if delete_todo(todo_id):
-            print(f"Deleted todo {todo_id}")
+    elif args.command == "delete":
+        if delete_todo(args.id):
+            print(f"Deleted todo {args.id}")
         else:
-            print(f"Todo {todo_id} not found")
-
-    else:
-        print(f"Unknown command: {cmd}")
+            print(f"Todo {args.id} not found")
 
 
 if __name__ == "__main__":
