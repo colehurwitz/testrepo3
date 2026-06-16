@@ -1,4 +1,5 @@
 import sys
+from importlib.metadata import PackageNotFoundError, version
 from todo.store import add_todo, load_todos, complete_todo, delete_todo
 from pathlib import Path
 
@@ -14,9 +15,19 @@ def print_todos(todos: list[dict]) -> None:
 
 def main() -> None:
     args = sys.argv[1:]
+
+    if args and args[0] in ("--version", "-v"):
+        try:
+            ver = version("todo-cli")
+        except PackageNotFoundError:
+            ver = "0.1.0"
+        print(f"todo-cli {ver}")
+        return
+
     if not args:
         print("Usage: todo <command> [args]")
         print("Commands: list, add, done, delete")
+        print("Flags:    --version, -v")
         return
 
     cmd = args[0]
