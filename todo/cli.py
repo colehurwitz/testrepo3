@@ -19,6 +19,11 @@ def main() -> None:
         print("Commands: list, add, done, delete")
         return
 
+    if args[0] in ("--version", "-V"):
+        from todo import __version__
+        print(f"todo-cli {__version__}")
+        return
+
     cmd = args[0]
 
     if cmd == "list":
