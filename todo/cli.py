@@ -1,4 +1,5 @@
 import sys
+from todo import __version__
 from todo.store import add_todo, load_todos, complete_todo, delete_todo
 from pathlib import Path
 
@@ -17,6 +18,11 @@ def main() -> None:
     if not args:
         print("Usage: todo <command> [args]")
         print("Commands: list, add, done, delete")
+        print("Options: --version")
+        return
+
+    if "--version" in args:
+        print(f"todo-cli {__version__}")
         return
 
     cmd = args[0]
