@@ -1,7 +1,6 @@
 import sys
 from todo import __version__
 from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
-from pathlib import Path
 
 
 def print_todos(todos: list[dict]) -> None:

@@ -1,5 +1,6 @@
 # todo-cli
 
+![CI](https://github.com/colehurwitz/testrepo3/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-%3E%3D3.11-blue)
 ![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 

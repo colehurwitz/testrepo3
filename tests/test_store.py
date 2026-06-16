@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
 
 
