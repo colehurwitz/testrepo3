@@ -37,3 +37,15 @@ def test_delete(tmp_store):
 
 def test_delete_missing(tmp_store):
     assert delete_todo(99, tmp_store) is False
+
+
+def test_id_no_collision_after_delete(tmp_store):
+    add_todo("A", tmp_store)
+    add_todo("B", tmp_store)
+    add_todo("C", tmp_store)
+    delete_todo(2, tmp_store)
+    new = add_todo("D", tmp_store)
+    todos = load_todos(tmp_store)
+    ids = [t["id"] for t in todos]
+    assert new["id"] not in [1, 3] or new["id"] == 4
+    assert len(ids) == len(set(ids))
