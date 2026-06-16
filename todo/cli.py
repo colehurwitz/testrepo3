@@ -12,11 +12,16 @@ def print_todos(todos: list[dict]) -> None:
         print(f"  [{status}] {t['id']}: {t['title']}")
 
 
-def main() -> None:
-    args = sys.argv[1:]
+def main(argv: list[str] | None = None) -> None:
+    args = argv if argv is not None else sys.argv[1:]
     if not args:
         print("Usage: todo <command> [args]")
         print("Commands: list, add, done, delete")
+        return
+
+    if args[0] in ("--version", "-V"):
+        from todo import __version__
+        print(f"todo-cli {__version__}")
         return
 
     cmd = args[0]
