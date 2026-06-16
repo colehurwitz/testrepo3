@@ -13,7 +13,8 @@ def print_todos(todos: list[dict]) -> None:
         print(f"  [{status}] {t['id']}: {t['title']}")
 
 
-def main() -> None:
+def main(path: Path = None) -> None:
+    store_kwargs = {"path": path} if path else {}
     args = sys.argv[1:]
     if not args:
         print("Usage: todo <command> [args]")
@@ -28,7 +29,7 @@ def main() -> None:
     cmd = args[0]
 
     if cmd == "list":
-        todos = load_todos()
+        todos = load_todos(**store_kwargs)
         print_todos(todos)
 
     elif cmd == "add":
@@ -36,15 +37,19 @@ def main() -> None:
             print("Usage: todo add <title>")
             return
         title = " ".join(args[1:])
-        todo = add_todo(title)
+        todo = add_todo(title, **store_kwargs)
         print(f"Added: [{todo['id']}] {todo['title']}")
 
     elif cmd == "done":
         if len(args) < 2:
             print("Usage: todo done <id>")
             return
-        todo_id = int(args[1])
-        result = complete_todo(todo_id)
+        try:
+            todo_id = int(args[1])
+        except ValueError:
+            print(f"Error: '{args[1]}' is not a valid todo ID", file=sys.stderr)
+            sys.exit(1)
+        result = complete_todo(todo_id, **store_kwargs)
         if result:
             print(f"Completed: {result['title']}")
         else:
@@ -54,8 +59,12 @@ def main() -> None:
         if len(args) < 2:
             print("Usage: todo delete <id>")
             return
-        todo_id = int(args[1])
-        if delete_todo(todo_id):
+        try:
+            todo_id = int(args[1])
+        except ValueError:
+            print(f"Error: '{args[1]}' is not a valid todo ID", file=sys.stderr)
+            sys.exit(1)
+        if delete_todo(todo_id, **store_kwargs):
             print(f"Deleted todo {todo_id}")
         else:
             print(f"Todo {todo_id} not found")

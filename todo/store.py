@@ -16,7 +16,8 @@ def save_todos(todos: list[dict], path: Path = DEFAULT_PATH) -> None:
 
 def add_todo(title: str, path: Path = DEFAULT_PATH) -> dict:
     todos = load_todos(path)
-    todo = {"id": len(todos) + 1, "title": title, "done": False}
+    next_id = max(t["id"] for t in todos) + 1 if todos else 1
+    todo = {"id": next_id, "title": title, "done": False}
     todos.append(todo)
     save_todos(todos, path)
     return todo
