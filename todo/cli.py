@@ -16,7 +16,12 @@ def main() -> None:
     args = sys.argv[1:]
     if not args:
         print("Usage: todo <command> [args]")
-        print("Commands: list, add, done, delete")
+        print("Commands: list, add, done, delete | Flags: --version")
+        return
+
+    if args[0] in ("--version", "-V"):
+        from importlib.metadata import version
+        print(version("todo-cli"))
         return
 
     cmd = args[0]
