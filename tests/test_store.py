@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from todo.store import add_todo, load_todos, complete_todo, delete_todo
+from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
 
 
 @pytest.fixture
@@ -37,3 +37,24 @@ def test_delete(tmp_store):
 
 def test_delete_missing(tmp_store):
     assert delete_todo(99, tmp_store) is False
+
+
+def test_search_matches(tmp_store):
+    add_todo("Buy milk", tmp_store)
+    add_todo("Buy eggs", tmp_store)
+    add_todo("Walk dog", tmp_store)
+    results = search_todos("buy", tmp_store)
+    assert len(results) == 2
+    assert {r["title"] for r in results} == {"Buy milk", "Buy eggs"}
+
+
+def test_search_case_insensitive(tmp_store):
+    add_todo("Buy Milk", tmp_store)
+    results = search_todos("buy milk", tmp_store)
+    assert len(results) == 1
+    assert results[0]["title"] == "Buy Milk"
+
+
+def test_search_no_results(tmp_store):
+    add_todo("Buy milk", tmp_store)
+    assert search_todos("xyz", tmp_store) == []
