@@ -1,7 +1,6 @@
 import sys
 from todo import __version__
-from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
-from pathlib import Path
+from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos, VALID_PRIORITIES
 
 
 def print_todos(todos: list[dict]) -> None:
@@ -10,7 +9,8 @@ def print_todos(todos: list[dict]) -> None:
         return
     for t in todos:
         status = "x" if t["done"] else " "
-        print(f"  [{status}] {t['id']}: {t['title']}")
+        priority = t.get("priority", "medium")
+        print(f"  [{status}] {t['id']}: {t['title']} ({priority})")
 
 
 def main() -> None:
@@ -29,15 +29,40 @@ def main() -> None:
 
     if cmd == "list":
         todos = load_todos()
+        rest = args[1:]
+        if "--priority" in rest:
+            idx = rest.index("--priority")
+            if idx + 1 < len(rest):
+                pval = rest[idx + 1].lower()
+                if pval not in VALID_PRIORITIES:
+                    print(f"Invalid priority: {pval}. Choose from: high, medium, low")
+                    return
+                todos = [t for t in todos if t.get("priority", "medium") == pval]
         print_todos(todos)
 
     elif cmd == "add":
         if len(args) < 2:
-            print("Usage: todo add <title>")
+            print("Usage: todo add <title> [--priority high|medium|low]")
             return
-        title = " ".join(args[1:])
-        todo = add_todo(title)
-        print(f"Added: [{todo['id']}] {todo['title']}")
+        rest = args[1:]
+        priority = "medium"
+        if "--priority" in rest:
+            idx = rest.index("--priority")
+            if idx + 1 < len(rest):
+                priority = rest[idx + 1].lower()
+                if priority not in VALID_PRIORITIES:
+                    print(f"Invalid priority: {priority}. Choose from: high, medium, low")
+                    return
+                rest = rest[:idx] + rest[idx + 2:]
+            else:
+                print("Usage: todo add <title> [--priority high|medium|low]")
+                return
+        title = " ".join(rest)
+        if not title:
+            print("Usage: todo add <title> [--priority high|medium|low]")
+            return
+        todo = add_todo(title, priority=priority)
+        print(f"Added: [{todo['id']}] {todo['title']} ({todo['priority']})")
 
     elif cmd == "done":
         if len(args) < 2:

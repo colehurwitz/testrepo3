@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
 
 
@@ -58,3 +57,20 @@ def test_search_case_insensitive(tmp_store):
 def test_search_no_results(tmp_store):
     add_todo("Buy milk", tmp_store)
     assert search_todos("xyz", tmp_store) == []
+
+
+def test_add_default_priority(tmp_store):
+    todo = add_todo("Task", tmp_store)
+    assert todo["priority"] == "medium"
+
+
+def test_add_custom_priority(tmp_store):
+    todo = add_todo("Urgent task", tmp_store, priority="high")
+    assert todo["priority"] == "high"
+    todos = load_todos(tmp_store)
+    assert todos[0]["priority"] == "high"
+
+
+def test_add_low_priority(tmp_store):
+    todo = add_todo("Someday task", tmp_store, priority="low")
+    assert todo["priority"] == "low"
