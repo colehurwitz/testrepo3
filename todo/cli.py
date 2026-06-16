@@ -1,6 +1,6 @@
 import sys
 from todo import __version__
-from todo.store import add_todo, load_todos, complete_todo, delete_todo
+from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
 from pathlib import Path
 
 
@@ -17,7 +17,7 @@ def main() -> None:
     args = sys.argv[1:]
     if not args:
         print("Usage: todo <command> [args]")
-        print("Commands: list, add, done, delete")
+        print("Commands: list, add, done, delete, search")
         print("Options: --version")
         return
 
@@ -59,6 +59,23 @@ def main() -> None:
             print(f"Deleted todo {todo_id}")
         else:
             print(f"Todo {todo_id} not found")
+
+    elif cmd == "search":
+        if len(args) < 2:
+            print("Usage: todo search <query> [--done | --pending]")
+            return
+        flag_done = "--done" in args[1:]
+        flag_pending = "--pending" in args[1:]
+        query = " ".join(a for a in args[1:] if a not in ("--done", "--pending"))
+        results = search_todos(query)
+        if flag_done and not flag_pending:
+            results = [t for t in results if t["done"]]
+        elif flag_pending and not flag_done:
+            results = [t for t in results if not t["done"]]
+        if not results:
+            print("No matching todos found.")
+            return
+        print_todos(results)
 
     else:
         print(f"Unknown command: {cmd}")

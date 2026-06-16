@@ -39,3 +39,8 @@ def delete_todo(todo_id: int, path: Path = DEFAULT_PATH) -> bool:
         return False
     save_todos(new, path)
     return True
+
+
+def search_todos(query: str, path: Path = DEFAULT_PATH) -> list[dict]:
+    todos = load_todos(path)
+    return [t for t in todos if query.lower() in t["title"].lower()]
