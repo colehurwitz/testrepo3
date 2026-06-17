@@ -17,10 +17,10 @@ def main() -> None:
     if not args:
         print("Usage: todo <command> [args]")
         print("Commands: list, add, done, delete, search")
-        print("Options: --version")
+        print("Options: --version, -V")
         return
 
-    if "--version" in args:
+    if "--version" in args or "-V" in args:
         print(f"todo-cli {__version__}")
         return
 
