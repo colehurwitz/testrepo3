@@ -1,4 +1,5 @@
 import sys
+from todo import __version__
 from todo.cli import main
 from todo.store import add_todo, complete_todo
 
@@ -8,7 +9,15 @@ def test_version_flag(capsys, monkeypatch):
     main()
     captured = capsys.readouterr()
     assert "todo-cli" in captured.out
-    assert "0.1.0" in captured.out
+    assert __version__ in captured.out
+
+
+def test_version_short_flag(capsys, monkeypatch):
+    monkeypatch.setattr(sys, "argv", ["todo", "-V"])
+    main()
+    captured = capsys.readouterr()
+    assert "todo-cli" in captured.out
+    assert __version__ in captured.out
 
 
 def test_search_command(capsys, monkeypatch, tmp_path):
