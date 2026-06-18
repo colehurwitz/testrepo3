@@ -60,3 +60,17 @@ def test_search_with_done_flag(capsys, monkeypatch, tmp_path):
     captured = capsys.readouterr()
     assert "Buy milk" in captured.out
     assert "Buy eggs" not in captured.out
+
+
+def test_done_invalid_id(capsys, monkeypatch):
+    monkeypatch.setattr(sys, "argv", ["todo", "done", "abc"])
+    main()
+    captured = capsys.readouterr()
+    assert "Error: 'abc' is not a valid todo ID. Please provide a number." in captured.out
+
+
+def test_delete_invalid_id(capsys, monkeypatch):
+    monkeypatch.setattr(sys, "argv", ["todo", "delete", "xyz"])
+    main()
+    captured = capsys.readouterr()
+    assert "Error: 'xyz' is not a valid todo ID. Please provide a number." in captured.out

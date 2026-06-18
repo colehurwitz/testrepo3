@@ -42,7 +42,11 @@ def main() -> None:
         if len(args) < 2:
             print("Usage: todo done <id>")
             return
-        todo_id = int(args[1])
+        try:
+            todo_id = int(args[1])
+        except ValueError:
+            print(f"Error: '{args[1]}' is not a valid todo ID. Please provide a number.")
+            return
         result = complete_todo(todo_id)
         if result:
             print(f"Completed: {result['title']}")
@@ -53,7 +57,11 @@ def main() -> None:
         if len(args) < 2:
             print("Usage: todo delete <id>")
             return
-        todo_id = int(args[1])
+        try:
+            todo_id = int(args[1])
+        except ValueError:
+            print(f"Error: '{args[1]}' is not a valid todo ID. Please provide a number.")
+            return
         if delete_todo(todo_id):
             print(f"Deleted todo {todo_id}")
         else:
