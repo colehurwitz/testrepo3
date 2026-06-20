@@ -1,5 +1,7 @@
 import pytest
-from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
+import os
+import stat
+from todo.store import add_todo, load_todos, save_todos, complete_todo, delete_todo, search_todos
 
 
 @pytest.fixture
@@ -57,3 +59,58 @@ def test_search_case_insensitive(tmp_store):
 def test_search_no_results(tmp_store):
     add_todo("Buy milk", tmp_store)
     assert search_todos("xyz", tmp_store) == []
+
+
+skip_if_root = pytest.mark.skipif(
+    os.geteuid() == 0, reason="root bypasses file permissions"
+)
+
+
+@skip_if_root
+def test_load_permission_denied(tmp_store):
+    """load_todos raises PermissionError when file is not readable."""
+    tmp_store.write_text("[]")
+    os.chmod(tmp_store, 0o000)
+    try:
+        with pytest.raises(PermissionError):
+            load_todos(tmp_store)
+    finally:
+        os.chmod(tmp_store, stat.S_IRUSR | stat.S_IWUSR)
+
+
+@skip_if_root
+def test_save_permission_denied(tmp_store):
+    """save_todos raises PermissionError when file is not writable."""
+    tmp_store.write_text("[]")
+    os.chmod(tmp_store, stat.S_IRUSR)  # Read-only
+    try:
+        with pytest.raises(PermissionError):
+            save_todos([], tmp_store)
+    finally:
+        os.chmod(tmp_store, stat.S_IRUSR | stat.S_IWUSR)
+
+
+@skip_if_root
+def test_add_permission_denied(tmp_store):
+    """add_todo raises PermissionError when file is not writable."""
+    tmp_store.write_text("[]")
+    os.chmod(tmp_store, stat.S_IRUSR)  # Read-only
+    try:
+        with pytest.raises(PermissionError):
+            add_todo("Test", tmp_store)
+    finally:
+        os.chmod(tmp_store, stat.S_IRUSR | stat.S_IWUSR)
+
+
+@skip_if_root
+def test_add_unwritable_directory(tmp_path):
+    """add_todo raises PermissionError when directory is not writable."""
+    subdir = tmp_path / "locked"
+    subdir.mkdir()
+    store = subdir / "todos.json"
+    os.chmod(subdir, stat.S_IRUSR | stat.S_IXUSR)  # Read+execute only
+    try:
+        with pytest.raises(PermissionError):
+            add_todo("Test", store)
+    finally:
+        os.chmod(subdir, stat.S_IRWXU)
