@@ -2,14 +2,12 @@ import json
 import threading
 import urllib.error
 import urllib.request
-from http.server import HTTPServer
 
-from todo.server import HealthHandler
+from todo.server import HealthHandler, ReusableHTTPServer
 
 
 def test_health_endpoint_returns_200_with_valid_json():
-    server = HTTPServer(("127.0.0.1", 0), HealthHandler)
-    server.allow_reuse_address = True
+    server = ReusableHTTPServer(("127.0.0.1", 0), HealthHandler)
     port = server.server_address[1]
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -27,8 +25,7 @@ def test_health_endpoint_returns_200_with_valid_json():
 
 
 def test_unknown_route_returns_404():
-    server = HTTPServer(("127.0.0.1", 0), HealthHandler)
-    server.allow_reuse_address = True
+    server = ReusableHTTPServer(("127.0.0.1", 0), HealthHandler)
     port = server.server_address[1]
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -48,8 +45,7 @@ def test_unknown_route_returns_404():
 
 
 def test_server_starts_and_shuts_down_cleanly():
-    server = HTTPServer(("127.0.0.1", 0), HealthHandler)
-    server.allow_reuse_address = True
+    server = ReusableHTTPServer(("127.0.0.1", 0), HealthHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
 

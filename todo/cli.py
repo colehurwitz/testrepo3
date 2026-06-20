@@ -89,7 +89,10 @@ def main() -> None:
         if not 1 <= port <= 65535:
             print(f"Error: Port must be between 1 and 65535, got {port}")
             return
-        run_server(port)
+        try:
+            run_server(port)
+        except OSError as e:
+            print(f"Error: Could not start server on port {port}: {e}")
 
     else:
         print(f"Unknown command: {cmd}")
