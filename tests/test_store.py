@@ -57,3 +57,17 @@ def test_search_case_insensitive(tmp_store):
 def test_search_no_results(tmp_store):
     add_todo("Buy milk", tmp_store)
     assert search_todos("xyz", tmp_store) == []
+
+
+def test_add_todo_with_due_date(tmp_store):
+    todo = add_todo("Buy milk", tmp_store, due="2025-01-15")
+    assert todo["due"] == "2025-01-15"
+    todos = load_todos(tmp_store)
+    assert todos[0]["due"] == "2025-01-15"
+
+
+def test_add_todo_without_due_date(tmp_store):
+    todo = add_todo("Buy milk", tmp_store)
+    assert todo["due"] is None
+    todos = load_todos(tmp_store)
+    assert todos[0]["due"] is None

@@ -14,9 +14,9 @@ def save_todos(todos: list[dict], path: Path = DEFAULT_PATH) -> None:
     path.write_text(json.dumps(todos))
 
 
-def add_todo(title: str, path: Path = DEFAULT_PATH) -> dict:
+def add_todo(title: str, path: Path = DEFAULT_PATH, due: str | None = None) -> dict:
     todos = load_todos(path)
-    todo = {"id": len(todos) + 1, "title": title, "done": False}
+    todo = {"id": len(todos) + 1, "title": title, "done": False, "due": due}
     todos.append(todo)
     save_todos(todos, path)
     return todo

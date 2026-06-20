@@ -1,6 +1,16 @@
 import sys
+from datetime import date
 from todo import __version__
 from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
+
+
+def parse_date(date_str: str) -> str:
+    """Parse and validate a date string in YYYY-MM-DD format."""
+    try:
+        date.fromisoformat(date_str)
+        return date_str
+    except ValueError:
+        raise ValueError(f"Invalid date format: '{date_str}'. Use YYYY-MM-DD format.")
 
 
 def print_todos(todos: list[dict]) -> None:
@@ -9,7 +19,8 @@ def print_todos(todos: list[dict]) -> None:
         return
     for t in todos:
         status = "x" if t["done"] else " "
-        print(f"  [{status}] {t['id']}: {t['title']}")
+        due_str = f" (due: {t['due']})" if t.get("due") else ""
+        print(f"  [{status}] {t['id']}: {t['title']}{due_str}")
 
 
 def main() -> None:
@@ -28,15 +39,37 @@ def main() -> None:
 
     if cmd == "list":
         todos = load_todos()
+        todos = sorted(todos, key=lambda t: (t.get('due') is None, t.get('due') or ''))
         print_todos(todos)
 
     elif cmd == "add":
         if len(args) < 2:
-            print("Usage: todo add <title>")
+            print("Usage: todo add <title> [--due YYYY-MM-DD]")
             return
-        title = " ".join(args[1:])
-        todo = add_todo(title)
-        print(f"Added: [{todo['id']}] {todo['title']}")
+        due = None
+        title_parts = []
+        i = 1
+        while i < len(args):
+            if args[i] == "--due":
+                if i + 1 >= len(args):
+                    print("Error: --due requires a date argument")
+                    return
+                try:
+                    due = parse_date(args[i + 1])
+                except ValueError as e:
+                    print(f"Error: {e}")
+                    return
+                i += 2
+            else:
+                title_parts.append(args[i])
+                i += 1
+        if not title_parts:
+            print("Usage: todo add <title> [--due YYYY-MM-DD]")
+            return
+        title = " ".join(title_parts)
+        todo = add_todo(title, due=due)
+        due_str = f" (due: {todo['due']})" if todo.get("due") else ""
+        print(f"Added: [{todo['id']}] {todo['title']}{due_str}")
 
     elif cmd == "done":
         if len(args) < 2:
