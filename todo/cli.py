@@ -1,6 +1,7 @@
 import sys
 from todo import __version__
 from todo.store import add_todo, load_todos, complete_todo, delete_todo, search_todos
+from todo.server import run_server
 
 
 def print_todos(todos: list[dict]) -> None:
@@ -16,7 +17,7 @@ def main() -> None:
     args = sys.argv[1:]
     if not args:
         print("Usage: todo <command> [args]")
-        print("Commands: list, add, done, delete, search")
+        print("Commands: list, add, done, delete, search, serve")
         print("Options: --version, -V")
         return
 
@@ -75,6 +76,17 @@ def main() -> None:
             print("No matching todos found.")
             return
         print_todos(results)
+
+    elif cmd == "serve":
+        port = 8080
+        for i, arg in enumerate(args[1:]):
+            if arg == "--port" and i + 2 < len(args):
+                try:
+                    port = int(args[i + 2])
+                except ValueError:
+                    print(f"Error: Invalid port number '{args[i + 2]}'")
+                    return
+        run_server(port)
 
     else:
         print(f"Unknown command: {cmd}")
