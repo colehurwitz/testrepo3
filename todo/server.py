@@ -25,8 +25,7 @@ class HealthHandler(BaseHTTPRequestHandler):
         pass
 
 
-def run_server(port: int = 8080) -> HTTPServer:
+def run_server(port: int = 8080) -> None:
     server = HTTPServer(("", port), HealthHandler)
     print(f"Server running on port {port}")
     server.serve_forever()
-    return server

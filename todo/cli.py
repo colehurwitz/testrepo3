@@ -84,7 +84,11 @@ def main() -> None:
         if "--port" in args:
             port_idx = args.index("--port")
             if port_idx + 1 < len(args):
-                port = int(args[port_idx + 1])
+                try:
+                    port = int(args[port_idx + 1])
+                except ValueError:
+                    print(f"Invalid port: {args[port_idx + 1]}")
+                    return
         run_server(port)
 
     else:
