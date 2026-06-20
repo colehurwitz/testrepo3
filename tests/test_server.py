@@ -4,12 +4,11 @@ import time
 import urllib.request
 from http.server import HTTPServer
 
-from todo.server import HealthHandler
+from todo.server import HealthHandler, ReusableHTTPServer
 
 
-def start_test_server(port: int) -> HTTPServer:
-    server = HTTPServer(("", port), HealthHandler)
-    server.allow_reuse_address = True
+def start_test_server(port: int) -> ReusableHTTPServer:
+    server = ReusableHTTPServer(("", port), HealthHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     time.sleep(0.1)

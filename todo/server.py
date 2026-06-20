@@ -3,6 +3,10 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
+class ReusableHTTPServer(HTTPServer):
+    allow_reuse_address = True
+
+
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         if self.path == "/health":
@@ -26,6 +30,5 @@ class HealthHandler(BaseHTTPRequestHandler):
 
 
 def run_server(port: int = 8080) -> None:
-    server = HTTPServer(("", port), HealthHandler)
-    server.allow_reuse_address = True
+    server = ReusableHTTPServer(("", port), HealthHandler)
     server.serve_forever()
