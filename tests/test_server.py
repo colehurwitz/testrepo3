@@ -32,7 +32,7 @@ def test_unknown_route_returns_404():
 
     try:
         req = urllib.request.Request(f"http://127.0.0.1:{port}/unknown")
-        with urllib.request.urlopen(req) as resp:
+        with urllib.request.urlopen(req):
             pass
     except urllib.error.HTTPError as e:
         assert e.code == 404
