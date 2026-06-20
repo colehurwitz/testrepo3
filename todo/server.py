@@ -25,9 +25,14 @@ class HealthHandler(BaseHTTPRequestHandler):
         pass
 
 
+class ReusableHTTPServer(HTTPServer):
+    allow_reuse_address = True
+
+
 def run_server(port: int = 8080) -> None:
+    if not 1 <= port <= 65535:
+        raise ValueError(f"Port must be between 1 and 65535, got {port}")
     server_address = ("", port)
-    httpd = HTTPServer(server_address, HealthHandler)
-    httpd.allow_reuse_address = True
+    httpd = ReusableHTTPServer(server_address, HealthHandler)
     print(f"Starting server on port {port}...")
     httpd.serve_forever()

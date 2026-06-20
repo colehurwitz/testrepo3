@@ -86,6 +86,9 @@ def main() -> None:
             except (IndexError, ValueError):
                 print("Usage: todo serve [--port PORT]")
                 return
+        if not 1 <= port <= 65535:
+            print(f"Error: Port must be between 1 and 65535, got {port}")
+            return
         run_server(port)
 
     else:
