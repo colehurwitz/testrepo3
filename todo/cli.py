@@ -16,7 +16,7 @@ def main() -> None:
     args = sys.argv[1:]
     if not args:
         print("Usage: todo <command> [args]")
-        print("Commands: list, add, done, delete, search")
+        print("Commands: list, add, done, delete, search, serve [--port PORT]")
         print("Options: --version, -V")
         return
 
@@ -75,6 +75,18 @@ def main() -> None:
             print("No matching todos found.")
             return
         print_todos(results)
+
+    elif cmd == "serve":
+        from todo.server import run_server
+        port = 8080
+        if "--port" in args:
+            try:
+                port_idx = args.index("--port")
+                port = int(args[port_idx + 1])
+            except (IndexError, ValueError):
+                print("Usage: todo serve [--port PORT]")
+                return
+        run_server(port)
 
     else:
         print(f"Unknown command: {cmd}")
