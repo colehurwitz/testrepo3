@@ -4,7 +4,7 @@ import urllib.request
 
 import pytest
 
-from todo.server import HealthHandler, run_server
+from todo.server import HealthHandler
 from http.server import HTTPServer
 
 

@@ -82,7 +82,11 @@ def main() -> None:
         if "--port" in args:
             idx = args.index("--port")
             if idx + 1 < len(args):
-                port = int(args[idx + 1])
+                try:
+                    port = int(args[idx + 1])
+                except ValueError:
+                    print(f"Error: --port requires a numeric value, got '{args[idx + 1]}'")
+                    return
         run_server(port)
 
     else:
